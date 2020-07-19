@@ -48,5 +48,5 @@ interface IAppState {
   editing?: string | null;
   nowShowing?: string;
   newTodoValue: string;
-  todoList: ITodo[]
+  todoList: ITodo[];
 }

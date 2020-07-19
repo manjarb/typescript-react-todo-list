@@ -7,6 +7,7 @@ import {
   ENTER_KEY,
 } from "./constants";
 import { Utils } from "./helper/utils";
+import { TodoItems } from "./components/TodoItems";
 
 class TodoApp extends React.Component<{}, IAppState> {
   state: IAppState;
@@ -51,17 +52,56 @@ class TodoApp extends React.Component<{}, IAppState> {
   };
 
   toggleAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("toggleAll");
     const { todoList } = this.state;
     if (!todoList) {
       return;
     }
 
     const checkedList = todoList.map((list) => {
-      list.completed = true;
+      list.completed = e.target.checked;
       return list;
     });
+    console.log(checkedList, " :checkedList");
     this.setState({
       todoList: checkedList,
+    });
+  };
+
+  toggle = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const { todoList } = this.state;
+    todoList[index].completed = e.target.checked;
+    this.setState({
+      todoList,
+    });
+  };
+
+  destroy = (index: number) => {
+    console.log("destroy");
+    const { todoList } = this.state;
+    delete todoList[index];
+    this.setState({
+      todoList,
+    });
+  };
+
+  edit = (id: string) => {
+    this.setState({
+      editing: id,
+    });
+  };
+
+  save = () => {
+    this.setState({
+      editing: null,
+    });
+  };
+
+  onChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const { todoList } = this.state;
+    todoList[index].title = e.target.value;
+    this.setState({
+      todoList,
     });
   };
 
@@ -72,7 +112,7 @@ class TodoApp extends React.Component<{}, IAppState> {
   }
 
   render() {
-    const { todoList } = this.state;
+    const { todoList, editing } = this.state;
     return (
       <div className="todoapp">
         <header className="header">
@@ -89,18 +129,31 @@ class TodoApp extends React.Component<{}, IAppState> {
         {todoList && (
           <section className="main">
             <input
+              id="toggle-all"
               type="checkbox"
               className="toggle-all"
               onChange={this.toggleAll}
-              // checked={activeTodoCount === 0}
+              checked={this.activeTodoCount === 0}
             />
-            {this.activeTodoCount}
+            <label htmlFor="toggle-all">Mark all as complete</label>
+            <ul className="todo-list">
+              {todoList.map((todo, index) => (
+                <TodoItems
+                  key={todo.id}
+                  index={index}
+                  title={todo.title}
+                  completed={todo.completed}
+                  editing={editing === todo.id}
+                  onToggle={(e) => this.toggle(e, index)}
+                  onDestroy={() => this.destroy(index)}
+                  onEdit={() => this.edit(todo.id)}
+                  onSave={this.save}
+                  onChange={(e) => this.onChange(e, index)}
+                />
+              ))}
+            </ul>
           </section>
         )}
-
-        {todoList.map((list) => (
-          <p>{list.title}</p>
-        ))}
       </div>
     );
   }
