@@ -53,7 +53,6 @@ class TodoApp extends React.Component<{}, IAppState> {
   };
 
   toggleAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("toggleAll");
     const { todoList } = this.state;
     if (!todoList) {
       return;
@@ -63,7 +62,7 @@ class TodoApp extends React.Component<{}, IAppState> {
       list.completed = e.target.checked;
       return list;
     });
-    console.log(checkedList, " :checkedList");
+
     this.setState({
       todoList: checkedList,
     });
@@ -78,7 +77,6 @@ class TodoApp extends React.Component<{}, IAppState> {
   };
 
   destroy = (index: number) => {
-    console.log("destroy");
     const { todoList } = this.state;
     todoList.splice(index, 1);
     this.setState({
@@ -120,7 +118,6 @@ class TodoApp extends React.Component<{}, IAppState> {
 
   render() {
     const { todoList, editing, nowShowing } = this.state;
-    console.log(todoList, " :todoList");
 
     const shownTodos = todoList.filter((todo) => {
       switch (nowShowing) {
