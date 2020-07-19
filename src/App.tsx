@@ -8,6 +8,7 @@ import {
 } from "./constants";
 import { Utils } from "./helper/utils";
 import { TodoItems } from "./components/TodoItems";
+import { TodoFooter } from "./components/TodoFooter";
 
 class TodoApp extends React.Component<{}, IAppState> {
   state: IAppState;
@@ -79,7 +80,7 @@ class TodoApp extends React.Component<{}, IAppState> {
   destroy = (index: number) => {
     console.log("destroy");
     const { todoList } = this.state;
-    delete todoList[index];
+    todoList.splice(index, 1);
     this.setState({
       todoList,
     });
@@ -105,6 +106,12 @@ class TodoApp extends React.Component<{}, IAppState> {
     });
   };
 
+  onFooterSelect = (showing: string) => {
+    this.setState({
+      nowShowing: showing,
+    });
+  };
+
   get activeTodoCount(): number {
     return this.state.todoList.reduce((accum, todo) => {
       return todo.completed ? accum : accum + 1;
@@ -112,7 +119,20 @@ class TodoApp extends React.Component<{}, IAppState> {
   }
 
   render() {
-    const { todoList, editing } = this.state;
+    const { todoList, editing, nowShowing } = this.state;
+    console.log(todoList, " :todoList");
+
+    const shownTodos = todoList.filter((todo) => {
+      switch (nowShowing) {
+        case ACTIVE_TODOS:
+          return !todo.completed;
+        case COMPLETED_TODOS:
+          return todo.completed;
+        default:
+          return true;
+      }
+    });
+
     return (
       <div className="todoapp">
         <header className="header">
@@ -127,32 +147,39 @@ class TodoApp extends React.Component<{}, IAppState> {
         </header>
 
         {todoList && (
-          <section className="main">
-            <input
-              id="toggle-all"
-              type="checkbox"
-              className="toggle-all"
-              onChange={this.toggleAll}
-              checked={this.activeTodoCount === 0}
+          <div>
+            <section className="main">
+              <input
+                id="toggle-all"
+                type="checkbox"
+                className="toggle-all"
+                onChange={this.toggleAll}
+                checked={this.activeTodoCount === 0}
+              />
+              <label htmlFor="toggle-all">Mark all as complete</label>
+              <ul className="todo-list">
+                {shownTodos.map((todo, index) => (
+                  <TodoItems
+                    key={todo.id}
+                    index={index}
+                    title={todo.title}
+                    completed={todo.completed}
+                    editing={editing === todo.id}
+                    onToggle={(e) => this.toggle(e, index)}
+                    onDestroy={() => this.destroy(index)}
+                    onEdit={() => this.edit(todo.id)}
+                    onSave={this.save}
+                    onChange={(e) => this.onChange(e, index)}
+                  />
+                ))}
+              </ul>
+            </section>
+            <TodoFooter
+              count={todoList.length}
+              nowShowing={nowShowing}
+              onSelect={this.onFooterSelect}
             />
-            <label htmlFor="toggle-all">Mark all as complete</label>
-            <ul className="todo-list">
-              {todoList.map((todo, index) => (
-                <TodoItems
-                  key={todo.id}
-                  index={index}
-                  title={todo.title}
-                  completed={todo.completed}
-                  editing={editing === todo.id}
-                  onToggle={(e) => this.toggle(e, index)}
-                  onDestroy={() => this.destroy(index)}
-                  onEdit={() => this.edit(todo.id)}
-                  onSave={this.save}
-                  onChange={(e) => this.onChange(e, index)}
-                />
-              ))}
-            </ul>
-          </section>
+          </div>
         )}
       </div>
     );

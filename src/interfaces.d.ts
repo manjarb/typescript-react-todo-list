@@ -46,7 +46,7 @@ interface IAppProps {
 
 interface IAppState {
   editing?: string | null;
-  nowShowing?: string;
+  nowShowing: string;
   newTodoValue: string;
   todoList: ITodo[];
 }
